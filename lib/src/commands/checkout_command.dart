@@ -50,32 +50,63 @@ class CheckoutCommand extends Command<int> {
       return ExitCode.ioError.code;
     }
 
-    final ticket = argResults!.rest.first.toUpperCase();
+    final ticketKey = argResults!.rest.first.toUpperCase();
 
-    if (!keyRegex.hasMatch(ticket)) {
+    var ticketKeyRegex = RegExp('^/($ticketKey)-*');
+
+    if (!keyRegex.hasMatch(ticketKey)) {
       _logger.err('does not match jira key regex');
-
       return ExitCode.ioError.code;
     }
     // TODO check for excisting branch
     final gitDir = await GitDir.fromExisting(p.current);
     final branches = await gitDir.branches();
 
-    var prefixedBranches = branches.where(
-      (element) => keyRegex.hasMatch(element.branchName),
+    // ! this is pure shit logic
+    final prefixedBranches = branches.where(
+      (element) => ticketKeyRegex.hasMatch(element.branchName),
     );
 
     _logger.info('local branches found ${prefixedBranches.length}');
-    if (prefixedBranches.isEmpty) {
-      await gitDir.runCommand(['checkout', '-b', ticket]).then((result) {
+    if (prefixedBranches.isNotEmpty) {
+      await gitDir.runCommand([
+        'checkout',
+        prefixedBranches.first.branchName,
+      ]).then((result) {
         stdout.write(result.stdout);
         stderr.write(result.stderr);
       });
+      return ExitCode.success.code;
     }
+    // await gitDir.runCommand(
+    //     ['checkout', '-b' ]).then((result) {
+    //   stdout.write(result.stdout);
+    //   stderr.write(result.stderr);
+    // });
 
     // TODO get jira ticket
+    final config = Config.fromEnv()!;
+    final client = ApiClient.basicAuthentication(
+      Uri.https('wisetribe.atlassian.net', ''),
+      user: config.jiraUser,
+      apiToken: config.jiraApiToken,
+    );
+    final jira = JiraPlatformApi(client);
+
+    var result = await jira.issues.getIssue(issueIdOrKey: ticketKey);
+    var ticket = Ticket.fromJira(result);
+
+    print(ticket.toString());
 
     // TODO input branch name with prefix and parsed title
+    await gitDir.runCommand([
+      'checkout',
+      '-b',
+      (ticket.branch),
+    ]).then((result) {
+      stdout.write(result.stdout);
+      stderr.write(result.stderr);
+    });
 
     // TODO update jira
     return ExitCode.success.code;

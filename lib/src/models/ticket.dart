@@ -19,12 +19,10 @@ class Ticket {
   final String? storyPoints;
   final String? reporter;
 
+  String get branch => '$key-$parsedTitle';
+  String get parsedTitle => title.replaceAll(' ', '_').toLowerCase();
+
   static Ticket fromJira(IssueBean issue) {
-    // print(issue.fields?['assignee']);
-    // for (var i = 0; i < issue.fields!.entries.length; i++) {
-    //   print(issue.fields!.entries.toList()[i].key);
-    //   print(issue.fields!.entries.toList()[i].value);
-    // }
     return Ticket(
       key: issue.key!,
       status: issue.fields!['status']['name'] as String,
