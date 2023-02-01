@@ -11,28 +11,30 @@ abstract class GitHostRepo {
   }
 
   Future<List<BranchReference>> findPrefixBranch(RegExp filter) async {
-    return (await branches)
-        .where(
-          (element) => filter.hasMatch(element.branchName),
-        )
-        .toList();
+    return branches.then(
+      (value) => value
+          .where(
+            (element) => filter.hasMatch(element.branchName),
+          )
+          .toList(),
+    );
   }
 
   Future<void> checkout(
     String branch, {
     bool newBranch = false,
-  }) async {
-    await command([
-      'checkout',
-      if (newBranch) '-b',
-      branch,
-    ]);
-  }
+  }) =>
+      command([
+        'checkout',
+        if (newBranch) '-b',
+        branch,
+      ]);
 
   Future<void> command(List<String> command) =>
       GitDir.fromExisting(p.current).then(
         (value) => value.runCommand(command).then(
           (value) {
+            print(command.toString());
             stdout.write(value.stdout);
             stderr.write(value.stderr);
           },

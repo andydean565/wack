@@ -50,7 +50,6 @@ class CheckoutCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    var keyRegex = RegExp('^([a-zA-Z][A-Z0-9]+)');
     // print(argResults?.rest);
     // print(argResults?.arguments);
 
@@ -60,16 +59,14 @@ class CheckoutCommand extends Command<int> {
     }
 
     final ticketKey = argResults!.rest.first.toUpperCase();
+    final ticketKeyRegex = RegExp('($ticketKey)-*');
 
-    var ticketKeyRegex = RegExp('^/($ticketKey)-*');
-
-    if (!keyRegex.hasMatch(ticketKey)) {
+    if (!ticketRepo.ticketKeyValidate(ticketKey)) {
       _logger.err('does not match jira key regex');
       return ExitCode.ioError.code;
     }
 
     final matchingBranches = await gitRepo.findPrefixBranch(ticketKeyRegex);
-
     _logger.info('local branches found ${matchingBranches.length}');
     if (matchingBranches.isNotEmpty) {
       if (matchingBranches.length == 1) {
@@ -84,7 +81,7 @@ class CheckoutCommand extends Command<int> {
       await gitRepo.checkout(action);
       return ExitCode.success.code;
     }
-
+    _logger.info('creating branch for $ticketKey');
     final ticket = await ticketRepo.getTicket(ticketKey);
     await gitRepo.checkout(ticket.branch, newBranch: true);
 
