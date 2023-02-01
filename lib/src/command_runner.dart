@@ -39,6 +39,7 @@ class WizeCommandRunner extends CommandRunner<int> {
 
     // Add sub commands
     addCommand(DoctorCommand(logger: _logger));
+    addCommand(TicketCommand(logger: _logger));
     addCommand(TicketsCommand(logger: _logger));
     addCommand(CheckoutCommand(logger: _logger));
     addCommand(DifferenceCommand(logger: _logger));

@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:atlassian_apis/jira_platform.dart';
 import 'package:ticket_host_repo/src/models/jira_ticket.dart';
 import 'package:ticket_host_repo/src/models/ticket.dart';
@@ -73,5 +75,11 @@ class JiraHostRepo extends TicketHostRepo {
       ),
     );
     return result.issues.map(JiraTicket.fromDynamic).toList();
+  }
+
+  @override
+  bool ticketKeyValidate(String key) {
+    var keyRegex = RegExp('^([a-zA-Z][A-Z0-9]+)');
+    return keyRegex.hasMatch(key);
   }
 }

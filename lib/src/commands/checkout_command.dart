@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:config_repo/config_repo.dart';
+import 'package:git_host_repo/git_host_repo.dart';
 import 'package:path/path.dart' as p;
 
 import 'package:args/command_runner.dart';
@@ -6,6 +8,7 @@ import 'package:atlassian_apis/jira_platform.dart';
 import 'package:git/git.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
+import 'package:ticket_host_repo/ticket_host_repo.dart';
 import 'package:wize/src/command_runner.dart';
 import 'package:wize/src/version.dart';
 import 'package:mason_logger/mason_logger.dart';
@@ -18,12 +21,14 @@ class CheckoutCommand extends Command<int> {
   CheckoutCommand({
     required Logger logger,
   }) : _logger = logger {
-    argParser.addFlag(
-      'jira',
-      abbr: 'j',
-      help: 'update jira ticket to Coding',
-      negatable: false,
-    );
+    argParser
+      ..addFlag(
+        'jira',
+        abbr: 'j',
+        help: 'update jira ticket to Coding',
+        negatable: false,
+      )
+      ..addCommand('ticket');
   }
 
   final Logger _logger;
@@ -36,6 +41,13 @@ class CheckoutCommand extends Command<int> {
   @override
   String get name => commandName;
 
+  late ConfigRepo config = ConfigRepo.fromEnv()!;
+  late GitHostRepo gitRepo = GitlabHostRepo();
+  late TicketHostRepo ticketRepo = JiraHostRepo(
+    user: config.jiraUser,
+    token: config.jiraApiToken,
+  );
+
   @override
   Future<int> run() async {
     var keyRegex = RegExp('^([a-zA-Z][A-Z0-9]+)');
@@ -44,7 +56,6 @@ class CheckoutCommand extends Command<int> {
 
     if (argResults!.rest.isEmpty) {
       _logger.err('no ticket selected');
-
       return ExitCode.ioError.code;
     }
 
@@ -56,56 +67,29 @@ class CheckoutCommand extends Command<int> {
       _logger.err('does not match jira key regex');
       return ExitCode.ioError.code;
     }
-    // TODO check for excisting branch
-    final gitDir = await GitDir.fromExisting(p.current);
-    final branches = await gitDir.branches();
 
-    final prefixedBranches = branches.where(
-      (element) => ticketKeyRegex.hasMatch(element.branchName),
-    );
+    final matchingBranches = await gitRepo.findPrefixBranch(ticketKeyRegex);
 
-    _logger.info('local branches found ${prefixedBranches.length}');
-    if (prefixedBranches.isNotEmpty) {
-      await gitDir.runCommand([
-        'checkout',
-        prefixedBranches.first.branchName,
-      ]).then((result) {
-        stdout.write(result.stdout);
-        stderr.write(result.stderr);
-      });
+    _logger.info('local branches found ${matchingBranches.length}');
+    if (matchingBranches.isNotEmpty) {
+      if (matchingBranches.length == 1) {
+        await gitRepo.checkout(matchingBranches.first.branchName);
+        return ExitCode.success.code;
+      }
+      final action = _logger.chooseOne<String>(
+        'branches:',
+        choices: matchingBranches.map((e) => e.branchName).toList(),
+        defaultValue: matchingBranches.first.branchName,
+      );
+      await gitRepo.checkout(action);
       return ExitCode.success.code;
     }
-    // await gitDir.runCommand(
-    //     ['checkout', '-b' ]).then((result) {
-    //   stdout.write(result.stdout);
-    //   stderr.write(result.stderr);
-    // });
 
-    // // TODO get jira ticket
-    // final config = Config.fromEnv()!;
-    // final client = ApiClient.basicAuthentication(
-    //   Uri.https('wisetribe.atlassian.net', ''),
-    //   user: config.jiraUser,
-    //   apiToken: config.jiraApiToken,
-    // );
-    // final jira = JiraPlatformApi(client);
-
-    // var result = await jira.issues.getIssue(issueIdOrKey: ticketKey);
-    // var ticket = Ticket.fromJira(result);
-
-    // print(ticket.toString());
-
-    // // TODO input branch name with prefix and parsed title
-    // await gitDir.runCommand([
-    //   'checkout',
-    //   '-b',
-    //   (ticket.branch),
-    // ]).then((result) {
-    //   stdout.write(result.stdout);
-    //   stderr.write(result.stderr);
-    // });
+    final ticket = await ticketRepo.getTicket(ticketKey);
+    await gitRepo.checkout(ticket.branch, newBranch: true);
 
     // TODO update jira
+
     return ExitCode.success.code;
   }
 }

@@ -44,12 +44,8 @@ class ConfigRepo {
         'BRANCH_FLOW',
         'TICKET_FLOW'
       ])) {
-        print('full config not found');
         return null;
       }
-
-      print((env['TICKET_FLOW']!).split(','));
-
       return ConfigRepo(
         jiraUser: env['ATLASSIAN_USER']!,
         jiraApiToken: env['ATLASSIAN_API_TOKEN']!,

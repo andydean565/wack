@@ -3,3 +3,4 @@ export './difference_command.dart';
 export 'doctor_command.dart';
 export 'tickets_command.dart';
 export 'update_command.dart';
+export './ticket_command.dart';
