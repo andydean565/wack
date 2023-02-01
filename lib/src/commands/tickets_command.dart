@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:args/command_runner.dart';
 import 'package:atlassian_apis/jira_platform.dart';
+import 'package:config_repo/config_repo.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
 import 'package:wize/src/command_runner.dart';
 import 'package:wize/src/version.dart';
 import 'package:mason_logger/mason_logger.dart';
-
-import '../models/models.dart';
+import 'package:ticket_host_repo/ticket_host_repo.dart';
 
 /// {@template tickets_command}
 /// A command which fetches tickets.
@@ -24,7 +24,7 @@ class TicketsCommand extends Command<int> {
         'status',
         abbr: 's',
         help: 'ticket status seperated by comma [defaults to Ready To Do]',
-        defaultsTo: 'Ready To Do',
+        // defaultsTo: 'Ready To Do',
       )
       ..addFlag(
         'mine',
@@ -37,71 +37,37 @@ class TicketsCommand extends Command<int> {
   final Logger _logger;
 
   @override
-  String get description => 'get jira tickets';
+  String get description => 'get avaliable tickets';
 
   static const String commandName = 'tickets';
 
   @override
   String get name => commandName;
 
+  late ConfigRepo config = ConfigRepo.fromEnv()!;
+
+  late TicketHostRepo ticketRepo = JiraHostRepo(
+    token: config.jiraApiToken,
+    user: config.jiraUser,
+  );
+
   @override
   Future<int> run() async {
-    final pageination = 10;
-    // TODO load config
-    final config = Config.fromEnv()!;
-    // TODO fetch tickets
-    final client = ApiClient.basicAuthentication(
-      Uri.https('wisetribe.atlassian.net', ''),
-      user: config.jiraUser,
-      apiToken: config.jiraApiToken,
+    final result = await ticketRepo.searchTickets(
+      config.ticketFlow,
+      // (argResults?['status'] as String?)?.split(','),
+      argResults?['project'] as String?,
+      maxResults: 50,
+      // me: false,
     );
-    final jira = JiraPlatformApi(client);
 
-    var statuses = (argResults?['status'] as String).split(',').map((e) {
-      if (e.contains(' ')) {
-        return '"$e"';
-      }
-      return e;
-    }).join(',');
+    _logger.info(
+      result.fold(
+        '',
+        (p, e) => '$p\n${e.toString()}',
+      ),
+    );
 
-    var query =
-        // ignore: leading_newlines_in_multiline_strings
-        """
-        status IN ($statuses)
-        AND project = ${argResults?['project']}
-        ${(argResults?['mine'] as bool) ? 'AND assignee in (currentUser()) ' : ''}
-        order by created DESC""";
-
-    // print(query);
-    var search = true;
-    SearchResults? result;
-    while (search) {
-      result = await jira.issueSearch.searchForIssuesUsingJqlPost(
-        body: SearchRequestBean(
-          startAt: (result?.startAt ?? 0) +
-              (result?.startAt != null ? pageination : 0),
-          maxResults: pageination,
-          jql: query,
-        ),
-      );
-      // result = await jira.issueSearch.searchForIssuesUsingJql(
-      //   startAt: (result?.startAt ?? 0) + pageination,
-      //   maxResults: pageination,
-      //   jql: query,
-      // );
-      _logger.info(
-        result.issues.map(Ticket.fromJira).toList().fold(
-              '',
-              (p, e) => '$p\n${e.toString()}',
-            ),
-      );
-
-      if (result.issues.length != pageination) {
-        search = false;
-      } else {
-        search = _logger.confirm('continue?', defaultValue: true);
-      }
-    }
     return ExitCode.success.code;
   }
 }

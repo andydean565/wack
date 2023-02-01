@@ -1,0 +1,15 @@
+name: landhero_app
+packages:
+  - "*"
+  - repos/**
+
+command:
+  bootstrap:
+    usePubspecOverrides: true
+
+scripts:
+  check: melos exec -- flutter pub global run tuneup check
+
+  analyze:
+    run: melos exec -c 1 -- flutter analyze
+    description: linting

@@ -10,8 +10,6 @@ import 'package:wize/src/command_runner.dart';
 import 'package:wize/src/version.dart';
 import 'package:mason_logger/mason_logger.dart';
 
-import '../models/models.dart';
-
 /// {@template tickets_command}
 /// A command which fetches tickets.
 /// {@endtemplate}
@@ -62,7 +60,6 @@ class CheckoutCommand extends Command<int> {
     final gitDir = await GitDir.fromExisting(p.current);
     final branches = await gitDir.branches();
 
-    // ! this is pure shit logic
     final prefixedBranches = branches.where(
       (element) => ticketKeyRegex.hasMatch(element.branchName),
     );
@@ -84,29 +81,29 @@ class CheckoutCommand extends Command<int> {
     //   stderr.write(result.stderr);
     // });
 
-    // TODO get jira ticket
-    final config = Config.fromEnv()!;
-    final client = ApiClient.basicAuthentication(
-      Uri.https('wisetribe.atlassian.net', ''),
-      user: config.jiraUser,
-      apiToken: config.jiraApiToken,
-    );
-    final jira = JiraPlatformApi(client);
+    // // TODO get jira ticket
+    // final config = Config.fromEnv()!;
+    // final client = ApiClient.basicAuthentication(
+    //   Uri.https('wisetribe.atlassian.net', ''),
+    //   user: config.jiraUser,
+    //   apiToken: config.jiraApiToken,
+    // );
+    // final jira = JiraPlatformApi(client);
 
-    var result = await jira.issues.getIssue(issueIdOrKey: ticketKey);
-    var ticket = Ticket.fromJira(result);
+    // var result = await jira.issues.getIssue(issueIdOrKey: ticketKey);
+    // var ticket = Ticket.fromJira(result);
 
-    print(ticket.toString());
+    // print(ticket.toString());
 
-    // TODO input branch name with prefix and parsed title
-    await gitDir.runCommand([
-      'checkout',
-      '-b',
-      (ticket.branch),
-    ]).then((result) {
-      stdout.write(result.stdout);
-      stderr.write(result.stderr);
-    });
+    // // TODO input branch name with prefix and parsed title
+    // await gitDir.runCommand([
+    //   'checkout',
+    //   '-b',
+    //   (ticket.branch),
+    // ]).then((result) {
+    //   stdout.write(result.stdout);
+    //   stderr.write(result.stderr);
+    // });
 
     // TODO update jira
     return ExitCode.success.code;

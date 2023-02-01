@@ -1,0 +1,8 @@
+# melos_managed_dependency_overrides: config_repo,git_host_repo,ticket_host_repo
+dependency_overrides:
+  config_repo:
+    path: repos/config_repo
+  git_host_repo:
+    path: repos/git_host_repo
+  ticket_host_repo:
+    path: repos/ticket_host_repo
