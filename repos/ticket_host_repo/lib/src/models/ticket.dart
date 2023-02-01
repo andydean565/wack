@@ -1,8 +1,9 @@
 // ignore_for_file: avoid_dynamic_calls
 
 import 'package:atlassian_apis/jira_platform.dart';
+import 'package:ticket_host_repo/src/models/jira_ticket.dart';
 
-class Ticket {
+abstract class Ticket {
   Ticket({
     required this.key,
     required this.title,
@@ -22,13 +23,13 @@ class Ticket {
   String get branch => '$key-$parsedTitle';
   String get parsedTitle => title.replaceAll(' ', '_').toLowerCase();
 
-  static Ticket fromJira(IssueBean issue) {
-    return Ticket(
-      key: issue.key!,
-      status: issue.fields!['status']['name'] as String,
-      title: issue.fields!['summary'] as String,
-      assignee: (issue.fields?['assignee']?['displayName'] as String?),
-    );
+  static Ticket fromDynamic(dynamic data) {
+    switch (data.runtimeType) {
+      case IssueBean:
+        return JiraTicket.fromDynamic(data);
+      default:
+        throw Exception('unkown ticket type: ${data.runtimeType}');
+    }
   }
 
   @override

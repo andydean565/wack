@@ -1,0 +1,13 @@
+name: ticket_host_repo
+description: A Very Good Project created by Very Good CLI.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ">=2.18.0 <3.0.0"
+
+dependencies:
+  atlassian_apis: ^0.11.0
+
+executables:
+  wize:

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/repos/config_repo/melos_config_repo.iml" filepath="$PROJECT_DIR$/repos/config_repo/melos_config_repo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/repos/git_host_repo/melos_git_host_repo.iml" filepath="$PROJECT_DIR$/repos/git_host_repo/melos_git_host_repo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/repos/ticket_host_repo/melos_ticket_host_repo.iml" filepath="$PROJECT_DIR$/repos/ticket_host_repo/melos_ticket_host_repo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/./melos_wize.iml" filepath="$PROJECT_DIR$/./melos_wize.iml" />
+      <module fileurl="file://$PROJECT_DIR$/melos_landhero_app.iml" filepath="$PROJECT_DIR$/melos_landhero_app.iml" />
+    </modules>
+  </component>
+</project>
