@@ -31,8 +31,6 @@ class TicketCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    print(argResults?.command?.name);
-
     if (argResults!.rest.isEmpty) {
       _logger.err('no ticket selected');
       return ExitCode.ioError.code;
@@ -56,7 +54,7 @@ class TicketCommand extends Command<int> {
       case 'update':
         break;
       case 'checkout':
-        runner?.run(['checkout', ticketKey]);
+        runner?.run(['checkout', ticket.key]);
         break;
       default:
     }
