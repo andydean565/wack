@@ -1,13 +1,28 @@
 export './gitlab_host_repo.dart';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:git/git.dart';
+import 'package:git_host_repo/src/models/models.dart';
 import 'package:path/path.dart' as p;
 
 abstract class GitHostRepo {
   Future<bool> get gitDir => GitDir.isGitDir(p.current);
+
   Future<List<BranchReference>> get branches {
     return GitDir.fromExisting(p.current).then((value) => value.branches());
+  }
+
+  Future<Map<String, Tag>> get tags {
+    return GitDir.fromExisting(p.current).then((value) async {
+      final tags = <String, Tag>{};
+
+      await for (var tag in value.tags()) {
+        tags[tag.objectSha] = tag;
+      }
+
+      return tags;
+    });
   }
 
   Future<BranchReference> get current {
@@ -38,6 +53,24 @@ abstract class GitHostRepo {
         ],
       );
       return Commit.parseRawRevList(pr.stdout as String);
+    });
+  }
+
+  Future<List<Release>> getReleases() async {
+    return GitDir.fromExisting(p.current).then((value) async {
+      final pr = await value.runCommand(
+        [
+          'for-each-ref',
+          '--format={"tag":"%(refname)","date":"%(taggerdate)","subject":"%(subject:sanitize)","body":""}',
+          "--sort=taggerdate",
+          "refs/tags/v*"
+        ],
+      );
+
+      var tags = (pr.stdout as String).split('\n');
+      return tags.where((element) => element.isNotEmpty).map((e) {
+        return Release.fromGit(json.decode(e));
+      }).toList();
     });
   }
 

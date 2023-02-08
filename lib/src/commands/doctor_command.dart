@@ -52,10 +52,7 @@ class DoctorCommand extends Command<int> {
       // ? set new config
 
       // ? git dir check
-      if (!(await gitRepo.gitDir)) {
-        _logger.err('current dir is no a git repo');
-        return ExitCode.ioError.code;
-      }
+      await _git();
       _logger.info('set new config: ');
       config = await _inputConfig(config: config);
       await config!.toEnv();
@@ -67,29 +64,9 @@ class DoctorCommand extends Command<int> {
     }
   }
 
-  // @override
-  // Future<int> run() async {
-  //   try {
-  //     await _git();
-  //     final localConfig = _localConfig();
-  //     final inputConfig = await _inputConfig(
-  //       config: localConfig,
-  //     );
-  //     await _saveConfig(
-  //       inputConfig,
-  //     );
-  //     return ExitCode.success.code;
-  //   } catch (e) {
-  //     print(e);
-  //     return ExitCode.ioError.code;
-  //   }
-  // }
-
   Future<void> _git() async {
-    // TODO verify in git repo
     final gitVerifyProgress = _logger.progress('Checking for git');
-    // ignore: cascade_invocations
-    var gitDir = await GitDir.isGitDir(p.current);
+    final gitDir = await GitDir.isGitDir(p.current);
     if (!gitDir) {
       gitVerifyProgress.fail('git not found in current dir');
       throw Exception('not git repo');
@@ -99,12 +76,24 @@ class DoctorCommand extends Command<int> {
 
   Future<ConfigRepo> _inputConfig({ConfigRepo? config}) async {
     final configProgress = _logger.progress('config input');
+    final ticketRepo = _logger.prompt(
+      'TICKET_REPO',
+      defaultValue: config?.ticketRepo ?? 'jira',
+    );
+    final gitRepo = _logger.prompt(
+      'GIT_REPO',
+      defaultValue: config?.gitRepo ?? 'gitlab',
+    );
+    final gitlabToken = _logger.prompt(
+      'GITLAB_API_TOKEN',
+      defaultValue: config?.gitlabToken,
+    );
     final jiraUser = _logger.prompt(
-      'ATLASSIAN_USER',
+      'JIRA_USER',
       defaultValue: config?.jiraUser,
     );
     final jiraApiKey = _logger.prompt(
-      'ATLASSIAN_API_TOKEN',
+      'JIRA_API_TOKEN',
       defaultValue: config?.jiraApiToken,
     );
     final ticketFlow = _logger.prompt(
@@ -117,6 +106,9 @@ class DoctorCommand extends Command<int> {
     );
 
     final input = ConfigRepo(
+      gitlabToken: gitlabToken,
+      gitRepo: gitRepo,
+      ticketRepo: ticketRepo,
       jiraUser: jiraUser,
       jiraApiToken: jiraApiKey,
       branchFlow: branchFlow.split(','),
