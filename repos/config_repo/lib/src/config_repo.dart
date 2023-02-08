@@ -31,9 +31,9 @@ class ConfigRepo {
         jiraApiToken.length,
       );
 
-  String get maskedGitlabToken => jiraApiToken.substring(
-        max(jiraApiToken.length - 5, 0),
-        jiraApiToken.length,
+  String get maskedGitlabToken => gitlabToken.substring(
+        max(gitlabToken.length - 5, 0),
+        gitlabToken.length,
       );
 
   Map<String, String> toJson({bool hide = true}) => {
@@ -52,9 +52,10 @@ class ConfigRepo {
     );
   }
 
-  static ConfigRepo? fromEnv() {
+  static ConfigRepo? fromEnv({String? file}) {
     try {
-      final env = DotEnv(includePlatformEnvironment: true)..load();
+      final env = DotEnv(includePlatformEnvironment: true)
+        ..load(file != null ? [file] : ['.env']);
       if (!env.isEveryDefined([
         'TICKET_REPO',
         'GIT_REPO',
@@ -72,7 +73,7 @@ class ConfigRepo {
         gitlabToken: env['GITLAB_API_TOKEN']!,
         jiraUser: env['JIRA_USER']!,
         jiraApiToken: env['JIRA_API_TOKEN']!,
-        branchFlow: (env['BRANCH_FLOW']!).split(','),
+        branchFlow: (env['BRANCH_FLOW']!).split(',').toList(),
         ticketFlow: (env['TICKET_FLOW']!).split(','),
       );
     } catch (e) {

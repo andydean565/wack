@@ -7,14 +7,20 @@ import 'package:git_host_repo/src/models/models.dart';
 import 'package:path/path.dart' as p;
 
 abstract class GitHostRepo {
-  Future<bool> get gitDir => GitDir.isGitDir(p.current);
+  final String? directory;
+
+  GitHostRepo({required this.directory}) {}
+
+  Future<bool> get gitDir => GitDir.isGitDir((this.directory ?? p.current));
 
   Future<List<BranchReference>> get branches {
-    return GitDir.fromExisting(p.current).then((value) => value.branches());
+    return GitDir.fromExisting((this.directory ?? p.current))
+        .then((value) => value.branches());
   }
 
   Future<Map<String, Tag>> get tags {
-    return GitDir.fromExisting(p.current).then((value) async {
+    return GitDir.fromExisting((this.directory ?? p.current))
+        .then((value) async {
       final tags = <String, Tag>{};
 
       await for (var tag in value.tags()) {
@@ -26,7 +32,7 @@ abstract class GitHostRepo {
   }
 
   Future<BranchReference> get current {
-    return GitDir.fromExisting(p.current)
+    return GitDir.fromExisting((this.directory ?? p.current))
         .then((value) => value.currentBranch());
   }
 
@@ -44,7 +50,8 @@ abstract class GitHostRepo {
     String source,
     String target,
   ) async {
-    return GitDir.fromExisting(p.current).then((value) async {
+    return GitDir.fromExisting((this.directory ?? p.current))
+        .then((value) async {
       final pr = await value.runCommand(
         [
           'rev-list',
@@ -57,7 +64,8 @@ abstract class GitHostRepo {
   }
 
   Future<List<Release>> getReleases() async {
-    return GitDir.fromExisting(p.current).then((value) async {
+    return GitDir.fromExisting((this.directory ?? p.current))
+        .then((value) async {
       final pr = await value.runCommand(
         [
           'for-each-ref',
@@ -85,7 +93,7 @@ abstract class GitHostRepo {
       ]);
 
   Future<void> command(List<String> command) =>
-      GitDir.fromExisting(p.current).then(
+      GitDir.fromExisting((this.directory ?? p.current)).then(
         (value) => value.runCommand(command).then(
           (value) {
             print(command.toString());
