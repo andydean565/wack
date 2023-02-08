@@ -7,6 +7,10 @@ import 'package:ticket_host_repo/src/models/ticket.dart';
 import 'ticket_host_repo.dart';
 
 class JiraHostRepo extends TicketHostRepo {
+  final RegExp _ticketKeyRegex = RegExp(
+    '((?!([A-Za-z0-9a-z]{1,10})-?\$)[A-Za-z]{1}[A-Za-z0-9]+-[1-9][0-9]*)',
+  );
+
   final String user;
   final String token;
   JiraHostRepo({required this.user, required this.token});
@@ -29,11 +33,17 @@ class JiraHostRepo extends TicketHostRepo {
   }
 
   @override
-  Future<Ticket> getTickets(List<String> keys) {
+  Future<List<Ticket>> getTickets(List<String> keys) async {
     var jira = _createClient();
-
-    // TODO: implement getTickets
-    throw UnimplementedError();
+    var query = 'key in (${keys.join(',')}) order by created DESC';
+    var result = await jira.issueSearch.searchForIssuesUsingJqlPost(
+      body: SearchRequestBean(
+        startAt: 0,
+        maxResults: 100,
+        jql: query,
+      ),
+    );
+    return result.issues.map(JiraTicket.fromDynamic).toList();
   }
 
   @override
@@ -79,7 +89,15 @@ class JiraHostRepo extends TicketHostRepo {
 
   @override
   bool ticketKeyValidate(String key) {
-    var keyRegex = RegExp('^([a-zA-Z][A-Z0-9]+)');
-    return keyRegex.hasMatch(key);
+    return _ticketKeyRegex.hasMatch(key);
   }
+
+  @override
+  List<String> findKey(String value) => _ticketKeyRegex
+      .allMatches(value)
+      .toList()
+      .map(
+        (e) => value.substring(e.start, e.end),
+      )
+      .toList();
 }

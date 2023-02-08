@@ -1,17 +1,8 @@
-import 'dart:io';
+import 'package:args/command_runner.dart';
 import 'package:config_repo/config_repo.dart';
 import 'package:git_host_repo/git_host_repo.dart';
-import 'package:path/path.dart' as p;
-
-import 'package:args/command_runner.dart';
-import 'package:atlassian_apis/jira_platform.dart';
-import 'package:git/git.dart';
 import 'package:mason_logger/mason_logger.dart';
-import 'package:pub_updater/pub_updater.dart';
 import 'package:ticket_host_repo/ticket_host_repo.dart';
-import 'package:wize/src/command_runner.dart';
-import 'package:wize/src/version.dart';
-import 'package:mason_logger/mason_logger.dart';
 
 /// {@template tickets_command}
 /// A command which fetches tickets.
@@ -81,11 +72,18 @@ class CheckoutCommand extends Command<int> {
       await gitRepo.checkout(action);
       return ExitCode.success.code;
     }
-    _logger.info('creating branch for $ticketKey');
-    final ticket = await ticketRepo.getTicket(ticketKey);
-    await gitRepo.checkout(ticket.branch, newBranch: true);
 
-    // TODO update jira
+    _logger.info('getting ticket info $ticketKey');
+
+    try {
+      final ticket = await ticketRepo.getTicket(ticketKey);
+      _logger.info('creating branch for $ticketKey');
+      await gitRepo.checkout(ticket.branch, newBranch: true);
+    } catch (e) {
+      _logger.err(e.toString());
+    }
+
+    // TODO(andy) update jira
 
     return ExitCode.success.code;
   }

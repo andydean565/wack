@@ -1,14 +1,8 @@
-import 'dart:io';
-import 'package:path/path.dart' as p;
-
 import 'package:args/command_runner.dart';
-import 'package:atlassian_apis/jira_platform.dart';
-import 'package:git/git.dart';
+import 'package:config_repo/config_repo.dart';
+import 'package:git_host_repo/git_host_repo.dart';
 import 'package:mason_logger/mason_logger.dart';
-import 'package:pub_updater/pub_updater.dart';
-import 'package:wize/src/command_runner.dart';
-import 'package:wize/src/version.dart';
-import 'package:mason_logger/mason_logger.dart';
+import 'package:ticket_host_repo/ticket_host_repo.dart';
 
 /// {@template tickets_command}
 /// A command which fetches tickets.
@@ -18,12 +12,19 @@ class DifferenceCommand extends Command<int> {
   DifferenceCommand({
     required Logger logger,
   }) : _logger = logger {
-    argParser.addFlag(
-      'jira',
-      abbr: 'j',
-      help: 'update jira ticket to Coding',
-      negatable: false,
-    );
+    argParser
+      ..addFlag(
+        'target',
+        abbr: 't',
+        help: 'target branch',
+        negatable: false,
+      )
+      ..addFlag(
+        'source',
+        abbr: 's',
+        help: 'source branch',
+        negatable: false,
+      );
   }
 
   final Logger _logger;
@@ -36,25 +37,88 @@ class DifferenceCommand extends Command<int> {
   @override
   String get name => commandName;
 
+  late GitHostRepo gitRepo = GitlabHostRepo();
+
+  late ConfigRepo config = ConfigRepo.fromEnv()!;
+
+  late TicketHostRepo ticketRepo = JiraHostRepo(
+    token: config.jiraApiToken,
+    user: config.jiraUser,
+  );
+
   @override
   Future<int> run() async {
-    // TODO check for excisting branch
-    final gitDir = await GitDir.fromExisting(p.current);
-    final current = await gitDir.commits('main');
-    final develop = await gitDir.commits('WISE-228-Biometric_Login');
-
-    print(current);
-    print(develop);
-
-    var difference = current.entries.fold<Map<String, Commit>>(
+    var foundTickets = <List<String>, Ticket>{};
+    final commits = await gitRepo.getCommitDifference('release', 'develop');
+    final ticketCommits = commits.entries.fold<Map<String, String>>(
       {},
-      (previousValue, element) => {
-        ...previousValue,
-        if (!develop.containsKey(element.key)) ...{element.key: element.value},
+      (p, e) {
+        final data = ticketRepo.findKey(e.value.message);
+        if (data.isNotEmpty) {
+          return {
+            ...p,
+            ...{
+              e.key: data.first.toUpperCase(),
+            }
+          };
+        }
+        return p;
       },
     );
 
-    print(difference);
+    if (ticketCommits.isNotEmpty) {
+      final tickets = await ticketRepo.getTickets(
+        ticketCommits.entries.map((e) => e.value).toList(),
+      );
+
+      foundTickets = tickets.fold<Map<List<String>, Ticket>>(
+        {},
+        (p, e) {
+          final commit = ticketCommits.entries.where(
+            (f) => ticketRepo.containsTicket(
+              f.value,
+              e.key,
+            ),
+          );
+          return {
+            ...p,
+            ...{
+              commit.map((e) => e.key).toList(): e,
+            }
+          };
+        },
+      );
+
+      _logger.alert('ticket commits: \n');
+
+      for (final element in foundTickets.entries) {
+        _logger.info('${element.value.toString()}\ncommits: ${element.key}');
+      }
+    }
+
+    // TODO non tickeet commits
+
+    final commitsTicketsId = foundTickets.entries.fold<List<String>>(
+      // ignore: inference_failure_on_collection_literal
+      const [],
+      (p, e) => [...p, ...e.key],
+    );
+
+    final nonTicketCommits = commits.entries
+        .where(
+          (element) => !commitsTicketsId.contains(element.key),
+        )
+        // ! removes merge commits
+        .where(
+          (element) => !element.value.message.startsWith('Merge branch'),
+        );
+    _logger.alert('non ticket commits: \n');
+
+    for (final element in nonTicketCommits) {
+      _logger.info(
+        '[${element.key}] ${element.value.message.replaceAll("\n", " ")}\n author: ${element.value.author}',
+      );
+    }
 
     return ExitCode.success.code;
   }
