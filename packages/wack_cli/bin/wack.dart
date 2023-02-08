@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:wize/src/command_runner.dart';
+import 'package:wack_cli/src/command_runner.dart';
 
 Future<void> main(List<String> args) async {
-  await _flushThenExit(await WizeCommandRunner().run(args));
+  await _flushThenExit(await WackCommandRunner().run(args));
 }
 
 /// Flushes the stdout and stderr streams, then exits the program with the given

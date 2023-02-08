@@ -2,6 +2,7 @@ name: landhero_app
 packages:
   - "*"
   - repos/**
+  - packages/**
 
 command:
   bootstrap:

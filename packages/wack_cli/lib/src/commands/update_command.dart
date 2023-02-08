@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
-import 'package:wize/src/command_runner.dart';
-import 'package:wize/src/version.dart';
+import 'package:wack_cli/src/command_runner.dart';
+import 'package:wack_cli/src/version.dart';
 
 /// {@template update_command}
 /// A command which updates the CLI.
