@@ -5,8 +5,8 @@ import 'package:atlassian_apis/jira_platform.dart';
 import 'package:config_repo/config_repo.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
-import 'package:wize/src/command_runner.dart';
-import 'package:wize/src/version.dart';
+import 'package:wack_cli/src/command_runner.dart';
+import 'package:wack_cli/src/version.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:ticket_host_repo/ticket_host_repo.dart';
 

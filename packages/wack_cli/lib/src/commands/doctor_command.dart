@@ -7,8 +7,8 @@ import 'package:args/command_runner.dart';
 import 'package:git_host_repo/git_host_repo.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
-import 'package:wize/src/command_runner.dart';
-import 'package:wize/src/version.dart';
+import 'package:wack_cli/src/command_runner.dart';
+import 'package:wack_cli/src/version.dart';
 import 'package:path/path.dart' as p;
 
 /// {@template update_command}

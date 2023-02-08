@@ -1,4 +1,4 @@
-name: wize
+name: wack_cli
 description: A Very Good Project created by Very Good CLI.
 version: 0.0.1
 publish_to: none
@@ -17,11 +17,11 @@ dependencies:
   pub_updater: ^0.2.4
 
   config_repo:
-    path: repos/config_repo
+    path: ../../repos/config_repo
   git_host_repo:
-    path: repos/git_host_repo
+    path: ../../repos/git_host_repo
   ticket_host_repo:
-    path: repos/ticket_host_repo
+    path: ../../repos/ticket_host_repo
 
 
 dev_dependencies:

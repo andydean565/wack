@@ -2,8 +2,8 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:mason_logger/mason_logger.dart';
 import 'package:pub_updater/pub_updater.dart';
-import 'package:wize/src/commands/commands.dart';
-import 'package:wize/src/version.dart';
+import 'package:wack_cli/src/commands/commands.dart';
+import 'package:wack_cli/src/version.dart';
 
 const executableName = 'wize';
 const packageName = 'wize';
@@ -16,9 +16,9 @@ const description = 'A Very Good Project created by Very Good CLI.';
 /// $ wize --version
 /// ```
 /// {@endtemplate}
-class WizeCommandRunner extends CommandRunner<int> {
+class WackCommandRunner extends CommandRunner<int> {
   /// {@macro wize_command_runner}
-  WizeCommandRunner({
+  WackCommandRunner({
     Logger? logger,
     PubUpdater? pubUpdater,
   })  : _logger = logger ?? Logger(),
