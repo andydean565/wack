@@ -10,6 +10,11 @@ abstract class GitHostRepo {
     return GitDir.fromExisting(p.current).then((value) => value.branches());
   }
 
+  Future<BranchReference> get current {
+    return GitDir.fromExisting(p.current)
+        .then((value) => value.currentBranch());
+  }
+
   Future<List<BranchReference>> findPrefixBranch(RegExp filter) async {
     return branches.then(
       (value) => value
@@ -18,6 +23,22 @@ abstract class GitHostRepo {
           )
           .toList(),
     );
+  }
+
+  Future<Map<String, Commit>> getCommitDifference(
+    String source,
+    String target,
+  ) async {
+    return GitDir.fromExisting(p.current).then((value) async {
+      final pr = await value.runCommand(
+        [
+          'rev-list',
+          '--format=raw',
+          '$source..$target',
+        ],
+      );
+      return Commit.parseRawRevList(pr.stdout as String);
+    });
   }
 
   Future<void> checkout(

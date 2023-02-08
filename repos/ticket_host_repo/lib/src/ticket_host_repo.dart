@@ -9,7 +9,14 @@ abstract class TicketHostRepo {
 
   bool ticketKeyValidate(String key);
 
-  Future<Ticket> getTickets(List<String> keys);
+  bool containsTicket(String data, String key) {
+    final ticketKeyRegex = RegExp('($key)-*');
+    return ticketKeyRegex.hasMatch(data.toUpperCase());
+  }
+
+  List<String> findKey(String key);
+
+  Future<List<Ticket>> getTickets(List<String> keys);
 
   Future<List<Ticket>> searchTickets(
     List<String>? status,
