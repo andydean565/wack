@@ -7,4 +7,6 @@
 /// # see usage
 /// wize --help
 /// ```
-library wize;
+library wack;
+
+export './src/command_runner.dart';

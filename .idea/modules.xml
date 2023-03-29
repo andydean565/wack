@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/repos/config_repo/melos_config_repo.iml" filepath="$PROJECT_DIR$/repos/config_repo/melos_config_repo.iml" />
       <module fileurl="file://$PROJECT_DIR$/repos/git_host_repo/melos_git_host_repo.iml" filepath="$PROJECT_DIR$/repos/git_host_repo/melos_git_host_repo.iml" />
       <module fileurl="file://$PROJECT_DIR$/repos/ticket_host_repo/melos_ticket_host_repo.iml" filepath="$PROJECT_DIR$/repos/ticket_host_repo/melos_ticket_host_repo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/./melos_wack.iml" filepath="$PROJECT_DIR$/./melos_wack.iml" />
       <module fileurl="file://$PROJECT_DIR$/packages/wack_cli/melos_wack_cli.iml" filepath="$PROJECT_DIR$/packages/wack_cli/melos_wack_cli.iml" />
       <module fileurl="file://$PROJECT_DIR$/packages/wack_ui/melos_wack_ui.iml" filepath="$PROJECT_DIR$/packages/wack_ui/melos_wack_ui.iml" />
       <module fileurl="file://$PROJECT_DIR$/melos_landhero_app.iml" filepath="$PROJECT_DIR$/melos_landhero_app.iml" />

@@ -13,17 +13,15 @@ class DifferenceCommand extends Command<int> {
     required Logger logger,
   }) : _logger = logger {
     argParser
-      ..addFlag(
+      ..addOption(
         'target',
         abbr: 't',
         help: 'target branch',
-        negatable: false,
       )
-      ..addFlag(
+      ..addOption(
         'source',
         abbr: 's',
         help: 'source branch',
-        negatable: false,
       );
   }
 
@@ -49,7 +47,11 @@ class DifferenceCommand extends Command<int> {
   @override
   Future<int> run() async {
     var foundTickets = <List<String>, Ticket>{};
-    final commits = await gitRepo.getCommitDifference('release', 'develop');
+
+    final target = (argResults?['target'] as String?) ?? 'release';
+    final source = (argResults?['source'] as String?) ?? 'develop';
+
+    final commits = await gitRepo.getCommitDifference(source, target);
     final ticketCommits = commits.entries.fold<Map<String, String>>(
       {},
       (p, e) {
