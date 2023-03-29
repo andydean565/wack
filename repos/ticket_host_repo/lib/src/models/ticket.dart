@@ -21,7 +21,10 @@ abstract class Ticket {
   final String? reporter;
 
   String get branch => '$key-$parsedTitle';
-  String get parsedTitle => title.replaceAll(' ', '_').toLowerCase();
+  String get parsedTitle {
+    var regex = RegExp('[^a-zA-Z0-9]');
+    return title.replaceAll(regex, '_').toLowerCase();
+  }
 
   static Ticket fromDynamic(dynamic data) {
     switch (data.runtimeType) {
