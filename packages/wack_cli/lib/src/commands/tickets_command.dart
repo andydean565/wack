@@ -54,11 +54,11 @@ class TicketsCommand extends Command<int> {
   @override
   Future<int> run() async {
     final result = await ticketRepo.searchTickets(
-      config.ticketFlow,
-      // (argResults?['status'] as String?)?.split(','),
+      // config.ticketFlow,
+      (argResults?['status'] as String?)?.split(','),
       argResults?['project'] as String?,
       maxResults: 50,
-      // me: false,
+      me: true,
     );
 
     _logger.info(
