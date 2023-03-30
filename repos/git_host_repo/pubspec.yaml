@@ -10,5 +10,4 @@ dependencies:
   git: ^2.2.0
   gitlab: ^0.6.0
 
-executables:
-  wize:
+
