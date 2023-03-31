@@ -48,7 +48,7 @@ $ wack doctor
 $ wack current
 
 # get avalible tickets
-$ wack tickets -s [status]
+$ wack tickets -s [status] -p [project_id]
 
 # get jira ticket info
 $ wack ticket [ticket_id]
