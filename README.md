@@ -36,7 +36,7 @@ $ wack doctor
 a few values will be required from jira & Gitlab to complete the setup process
 
 - jira api token
-- gitlab api token
+- gitlab api token (not currently used)
 
 # Usage
 
@@ -48,7 +48,7 @@ $ wack doctor
 $ wack current
 
 # get avalible tickets
-$ wack tickets
+$ wack tickets -s [status]
 
 # get jira ticket info
 $ wack ticket [ticket_id]
