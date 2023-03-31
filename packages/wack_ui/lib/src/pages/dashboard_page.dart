@@ -24,12 +24,8 @@ class _DashboardPageState extends State<DashboardPage> {
       body: Column(
         children: [
           if (Provider.of<DashboardStore>(context).branch != null)
-            FlowCard(
-              branch: Provider.of<DashboardStore>(context).branch!,
-              flow: Provider.of<DashboardStore>(context).configRepo.branchFlow,
-            ),
-          if (Provider.of<DashboardStore>(context).ticket != null)
-            TicketInfo(ticket: Provider.of<DashboardStore>(context).ticket!),
+            if (Provider.of<DashboardStore>(context).ticket != null)
+              TicketInfo(ticket: Provider.of<DashboardStore>(context).ticket!),
         ],
       ),
     );

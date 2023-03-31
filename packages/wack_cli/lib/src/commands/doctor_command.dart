@@ -96,14 +96,6 @@ class DoctorCommand extends Command<int> {
       'JIRA_API_TOKEN',
       defaultValue: config?.jiraApiToken,
     );
-    final ticketFlow = _logger.prompt(
-      'TICKET_FLOW',
-      defaultValue: config?.ticketFlow,
-    );
-    final branchFlow = _logger.prompt(
-      'BRANCH_FLOW',
-      defaultValue: config?.branchFlow,
-    );
 
     final input = ConfigRepo(
       gitlabToken: gitlabToken,
@@ -111,8 +103,6 @@ class DoctorCommand extends Command<int> {
       ticketRepo: ticketRepo,
       jiraUser: jiraUser,
       jiraApiToken: jiraApiKey,
-      branchFlow: branchFlow.split(','),
-      ticketFlow: ticketFlow.split(','),
     );
     configProgress.complete('config inputted');
     return input;

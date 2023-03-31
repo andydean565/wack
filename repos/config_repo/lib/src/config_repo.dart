@@ -11,8 +11,6 @@ class ConfigRepo {
     required this.gitlabToken,
     required this.jiraUser,
     required this.jiraApiToken,
-    required this.branchFlow,
-    required this.ticketFlow,
   });
 
   final String gitRepo;
@@ -22,9 +20,6 @@ class ConfigRepo {
 
   final String jiraUser;
   final String jiraApiToken;
-
-  final List<String> branchFlow;
-  final List<String> ticketFlow;
 
   String get maskedJiraToken => jiraApiToken.substring(
         max(jiraApiToken.length - 5, 0),
@@ -42,13 +37,12 @@ class ConfigRepo {
         'JIRA_USER': jiraUser,
         'JIRA_API_TOKEN': hide ? '********$maskedJiraToken' : jiraApiToken,
         'GITLAB_API_TOKEN': hide ? '********$maskedGitlabToken' : gitlabToken,
-        'BRANCH_FLOW': ticketFlow.join(' => '),
-        'TICKET_FLOW': branchFlow.join(' => ')
       };
 
   Future<void> toEnv() async {
+    // ignore: lines_longer_than_80_chars
     await File('${p.current}/.env').writeAsString(
-      'TICKET_REPO=$ticketRepo\nGIT_REPO=$gitRepo\nGITLAB_API_TOKEN=$gitlabToken\nJIRA_USER=$jiraUser\nJIRA_API_TOKEN=$jiraApiToken\nBRANCH_FLOW=${branchFlow.join(',')}\nTICKET_FLOW=${ticketFlow.join(',')}',
+      'TICKET_REPO=$ticketRepo\nGIT_REPO=$gitRepo\nGITLAB_API_TOKEN=$gitlabToken\nJIRA_USER=$jiraUser\nJIRA_API_TOKEN=$jiraApiToken',
     );
   }
 
@@ -73,8 +67,6 @@ class ConfigRepo {
         gitlabToken: env['GITLAB_API_TOKEN']!,
         jiraUser: env['JIRA_USER']!,
         jiraApiToken: env['JIRA_API_TOKEN']!,
-        branchFlow: (env['BRANCH_FLOW']!).split(',').toList(),
-        ticketFlow: (env['TICKET_FLOW']!).split(','),
       );
     } catch (e) {
       print(e);
