@@ -6,3 +6,4 @@ export './releases_command.dart';
 export './ticket_command.dart';
 export './tickets_command.dart';
 export './update_command.dart';
+export './app_release_command.dart';

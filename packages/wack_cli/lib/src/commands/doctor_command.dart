@@ -76,31 +76,23 @@ class DoctorCommand extends Command<int> {
 
   Future<ConfigRepo> _inputConfig({ConfigRepo? config}) async {
     final configProgress = _logger.progress('config input');
-    final ticketRepo = _logger.prompt(
-      'TICKET_REPO',
-      defaultValue: config?.ticketRepo ?? 'jira',
-    );
-    final gitRepo = _logger.prompt(
-      'GIT_REPO',
-      defaultValue: config?.gitRepo ?? 'gitlab',
-    );
     final gitlabToken = _logger.prompt(
       'GITLAB_API_TOKEN',
       defaultValue: config?.gitlabToken,
-    );
-    final jiraUser = _logger.prompt(
-      'JIRA_USER',
-      defaultValue: config?.jiraUser,
     );
     final jiraApiKey = _logger.prompt(
       'JIRA_API_TOKEN',
       defaultValue: config?.jiraApiToken,
     );
+    final jiraUser = _logger.prompt(
+      'JIRA_EMAIL_ADDRESS',
+      defaultValue: config?.jiraUser,
+    );
 
     final input = ConfigRepo(
       gitlabToken: gitlabToken,
-      gitRepo: gitRepo,
-      ticketRepo: ticketRepo,
+      gitRepo: 'gitlab',
+      ticketRepo: 'jira',
       jiraUser: jiraUser,
       jiraApiToken: jiraApiKey,
     );
