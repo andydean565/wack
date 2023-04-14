@@ -35,8 +35,9 @@ $ wack doctor
 
 a few values will be required from jira & Gitlab to complete the setup process
 
-- jira api token
-- gitlab api token (not currently used)
+- [GITLAB_API_TOKEN](https://gitlab.wise-dev.co.uk/-/profile/personal_access_tokens) (not currently used)
+- JIRA_EMAIL_ADDRESS
+- [JIRA_API_TOKEN](https://id.atlassian.com/manage-profile/security/api-tokens)
 
 # Usage
 
@@ -62,6 +63,9 @@ $ wack difference -t [target] -s [source]
 # get repo releases (tags)
 # (still in development)
 $ wack releases
+
+# create new app release and push
+$ wack app release
 
 # Show usage help
 $ wack --help
